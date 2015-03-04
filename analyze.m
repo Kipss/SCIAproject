@@ -1,25 +1,45 @@
-sourceImageDirectory="/home/pi/Documents/sciaProject/sourceImages"
-destinationImageDirectory="/home/pi/Documents/sciaProject/checkedImages"
+sourceImageDirectory = "/home/pi/Documents/sciaProject/sourceImages"
+destinationImageDirectory = \
+"/home/pi/Documents/sciaProject/checkedImages"
 
-If[DirectoryQ[sourceImageDirectory],NULL, Exit[]]
+If[DirectoryQ[sourceImageDirectory], NULL, Exit[]]
 Print[DirectoryQ[sourceImageDirectory]]
 
 SetDirectory[sourceImageDirectory]
 
-files=FileNames[]
+files = FileNames[]
 Print[files]
-nextImage=Part[files,1]
+nextImage = Part[files, 1]
 
 Print[nextImage]
 
 SetDirectory["/home/pi/Documents/sciaProject"]
 
-If[DirectoryQ[destinationImageDirectory],NULL, CreateDirectory["checkedImages"]]
+If[DirectoryQ[destinationImageDirectory], NULL, 
+ CreateDirectory["checkedImages"]]
 SetDirectory[destinationImageDirectory]
-files=FileNames[nextImage]
+files = FileNames[nextImage]
 
-If[FileExistsQ[nextImage] ,SetDirectory[sourceImageDirectory];DeleteFile[nextImage];Exit[]]
+If[FileExistsQ[nextImage], SetDirectory[sourceImageDirectory]; 
+ DeleteFile[nextImage]; Exit[]]
 
 Print["This image doesnt already exists!"]
 
-Import[StringJoin[sourceImageDirectory,"/",nextImage]]
+testImage = Import[StringJoin[sourceImageDirectory, "/", nextImage]]
+(* Image[DeleteSmallComponents[RemoveBackground[testImage, \
+{"Background",{"Uniform",0.08}}],2]] *)
+Image[
+ RemoveBackground[testImage, {"Background", LightBlue}]]
+Image[RemoveBackground[testImage, {"Foreground", "Uniform"}]]
+binTestImage = FillingTransform[ColorNegate[Binarize[testImage]]]
+
+Image[MorphologicalComponents[testImage, .50]]
+Erosion[%, 5]
+MorphologicalPerimeter[%, .5]
+
+
+
+Image[ImageData[%] /. {1 -> {0., 0., 1., .5}, 0 -> {1., 1., 1., 0.}}, 
+ ColorSpace -> "RGB"]
+
+ImageCompose[testImage, %]n
