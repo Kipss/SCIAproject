@@ -1,6 +1,6 @@
-sourceImageDirectory = "/home/pi/Documents/SCIAproject/sourceImages"
+sourceImageDirectory = "/home/pi/SCIAproject/sourceImages"
 destinationImageDirectory = \
-"/home/pi/Documents/SCIAproject/checkedImages"
+"/home/pi/SCIAproject/checkedImages"
 
 If[DirectoryQ[sourceImageDirectory], NULL, Exit[]]
 Print[DirectoryQ[sourceImageDirectory]]
@@ -13,7 +13,7 @@ nextImage = Part[files, 1]
 
 Print[nextImage]
 
-SetDirectory["/home/pi/Documents/SCIAproject"]
+SetDirectory["/home/pi/SCIAproject"]
 
 If[DirectoryQ[destinationImageDirectory], NULL, 
  CreateDirectory["checkedImages"]]
@@ -25,21 +25,26 @@ If[FileExistsQ[nextImage], SetDirectory[sourceImageDirectory];
 
 Print["This image doesnt already exists!"]
 
-testImage = Import[StringJoin[sourceImageDirectory, "/", nextImage]]
-(* Image[DeleteSmallComponents[RemoveBackground[testImage, \
-{"Background",{"Uniform",0.08}}],2]] *)
-Image[
- RemoveBackground[testImage, {"Background", LightBlue}]]
-Image[RemoveBackground[testImage, {"Foreground", "Uniform"}]]
-binTestImage = FillingTransform[ColorNegate[Binarize[testImage]]]
+birds = Import[StringJoin[sourceImageDirectory, "/", nextImage]]
 
-Image[MorphologicalComponents[testImage, .50]]
-Erosion[%, 5]
-MorphologicalPerimeter[%, .5]
+b = FillingTransform[ColorNegate[Binarize[birds]]];
+distT = DistanceTransform[b, Padding -> 0];
+marker = MaxDetect[ImageAdjust[distT], 0.0];
+w = WatershedComponents[GradientFilter[b, 3], marker, 
+   Method -> "Rainfall"];
+bcount = SelectComponents[w, "Count", 300 < # < 3000 &];
+measures = 
+  ComponentMeasurements[
+   bcount, {"Centroid", "EquivalentDiskRadius", "LabelCount"}];
+finalImage = 
+ Image[Show[birds, 
+   Graphics[{Yellow, Circle @@ # & /@ (measures[[All, 2, 1 ;; 2]]), 
+     MapThread[
+      Text, {measures[[All, 2, 3]], measures[[All, 2, 1]]}]}]]]
 
+Export[nextImage, finalImage]
 
+SetDirectory[sourceImageDirectory]
+DeleteFile[nextImage];
 
-Image[ImageData[%] /. {1 -> {0., 0., 1., .5}, 0 -> {1., 1., 1., 0.}}, 
- ColorSpace -> "RGB"]
-
-ImageCompose[testImage, %]n
+Print[measures // Length]
