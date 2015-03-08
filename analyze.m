@@ -1,6 +1,6 @@
-sourceImageDirectory = "/home/pi/Documents/sciaProject/sourceImages"
+sourceImageDirectory = "/home/pi/Documents/SCIAproject/sourceImages"
 destinationImageDirectory = \
-"/home/pi/Documents/sciaProject/checkedImages"
+"/home/pi/Documents/SCIAproject/checkedImages"
 
 If[DirectoryQ[sourceImageDirectory], NULL, Exit[]]
 Print[DirectoryQ[sourceImageDirectory]]
@@ -13,7 +13,7 @@ nextImage = Part[files, 1]
 
 Print[nextImage]
 
-SetDirectory["/home/pi/Documents/sciaProject"]
+SetDirectory["/home/pi/Documents/SCIAproject"]
 
 If[DirectoryQ[destinationImageDirectory], NULL, 
  CreateDirectory["checkedImages"]]
