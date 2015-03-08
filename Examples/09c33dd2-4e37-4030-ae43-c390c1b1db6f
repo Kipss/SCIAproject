@@ -1,0 +1,3 @@
+
+
+FormFunction[FormObject[<|"size" -> <|"Interpreter" -> "Number", "Hidden" -> False|>|>], Style["Hack Arizona", Green, #size] & , "GIF"]
